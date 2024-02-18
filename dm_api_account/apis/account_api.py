@@ -1,19 +1,18 @@
-import requests
 from requests import Response
-from requests import session
-from models.registration_model import registration_model
-from models.reset_password_model import reset_password_model
-from models.change_password_model import change_password_model
-from models.change_email_model import change_email_model
+from dm_api_account.models.registration_model import registration_model
+from dm_api_account.models import reset_password_model
+from dm_api_account.models.change_password_model import change_password_model
+from dm_api_account.models.change_email_model import change_email_model
+from rest_client.rest_client import RestClient
 
 
 class AccountApi:
     def __init__(self, host, headers=None):
         self.host = host
-        self.session = session()
+        self.client = RestClient(host=host, headers=headers)
 
         if headers:
-            self.session.headers.update(headers)
+            self.client.session.headers.update(headers)
 
     def get_v1_account(self, **kwargs) -> Response:
         """
@@ -21,16 +20,9 @@ class AccountApi:
         :return:
         """
 
-        headers = {
-            'X-Dm-Auth-Token': 'IQJh+zgzF5CdS6VgrXhgGsVK1ULfL4rMDxWCa7nvG6D34NDIImajtxAP/fi9E1ckh4jQANlZhouVlc94b348'
-                               'kLS0zoOXk7pc6BiToSVhk4vuR/TWe3aeXoECJar+Rt6NsTgSfSQEhkg=',
-            'X-Dm-Bb-Render-Mode': '',
-            'Accept': 'text/plain'
-        }
+        response = self.client.get(
+            url=f"/v1/account",
 
-        response = self.session.get(
-            url=f"{self.host}/v1/account",
-            headers=headers,
             **kwargs
         )
 
@@ -43,8 +35,8 @@ class AccountApi:
         :return:
         """
 
-        response = requests.post(
-            url=f"{self.host}/v1/account",
+        response = self.client.post(
+            url=f"/v1/account",
             json=json,
             **kwargs
         )
@@ -58,8 +50,8 @@ class AccountApi:
         :return:
         """
 
-        response = self.session.post(
-            url=f"{self.host}/v1/account/password",
+        response = self.client.post(
+            url=f"/v1/account/password",
             json=json,
             **kwargs
         )
@@ -72,8 +64,8 @@ class AccountApi:
         :return:
         """
 
-        response = self.session.put(
-            url=f"{self.host}/v1/account/{token}",
+        response = self.client.put(
+            url=f"/v1/account/{token}",
             **kwargs
         )
 
@@ -86,8 +78,8 @@ class AccountApi:
         :return:
         """
 
-        response = self.session.put(
-            url=f"{self.host}/v1/account/password",
+        response = self.client.put(
+            url=f"/v1/account/password",
             json=json,
             **kwargs
         )
@@ -101,8 +93,8 @@ class AccountApi:
         :return:
         """
 
-        response = self.session.put(
-            url=f"{self.host}/v1/account/email",
+        response = self.client.put(
+            url=f"/v1/account/email",
             json=json,
             **kwargs
         )
