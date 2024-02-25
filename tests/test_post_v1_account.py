@@ -2,7 +2,7 @@ import time
 
 from services.dm_api_account import DmApiAccount
 from tests import test_put_v1_account_token
-from dm_api_account.models.registration_model import registration_model
+from dm_api_account.models.registration_model import RegistrationModel
 
 
 def test_post_v1_account():
@@ -10,7 +10,11 @@ def test_post_v1_account():
 
     # creating an account
     response = api.account.post_v1_account(
-        json=registration_model
+        json=RegistrationModel(
+            login='berry_lemonade11',
+            email='berry_lemonade11@wolt.com',
+            password='stringstring'
+        )
     )
     assert response.status_code == 201, f'The response status code must be equal 201, but it is {response.status_code}'
 
