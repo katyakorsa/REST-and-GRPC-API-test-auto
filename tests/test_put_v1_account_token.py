@@ -2,7 +2,7 @@ import time
 
 from services.dm_api_account import DmApiAccount
 from services.mailhog import MailhogApi
-from dm_api_account.models.registration_model import registration_model
+from dm_api_account.models.registration_model import RegistrationModel
 
 
 def test_put_v1_account_token():
@@ -12,7 +12,11 @@ def test_put_v1_account_token():
 
     # creating an account
     api.account.post_v1_account(
-        json=registration_model
+        json=RegistrationModel(
+            login='berry_lemonade15',
+            email='berry_lemonade15@wolt.com',
+            password='stringstring'
+        )
     )
 
     # activation an account

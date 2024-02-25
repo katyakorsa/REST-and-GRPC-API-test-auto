@@ -1,7 +1,7 @@
 import time
 
-from dm_api_account.models.change_email_model import change_email_model
-from dm_api_account.models.registration_model import registration_model
+from dm_api_account.models.change_email_model import ChangeEmailModel
+from dm_api_account.models.registration_model import RegistrationModel
 from services.dm_api_account import DmApiAccount
 from services.mailhog import MailhogApi
 
@@ -13,7 +13,11 @@ def test_put_v1_account_email():
 
     # creating an account
     api.account.post_v1_account(
-        json=registration_model
+        json=RegistrationModel(
+            login='berry_lemonade14',
+            email='berry_lemonade14@wolt.com',
+            password='stringstring'
+        )
     )
 
     # activation an account
@@ -25,6 +29,10 @@ def test_put_v1_account_email():
 
     # changing an email of existing user
     response = api.account.put_v1_account_email(
-        json=change_email_model
+        json=ChangeEmailModel(
+            login='berry_lemonade14',
+            password='stringstring',
+            email='berry_lemonade14@wolt.ru'
+        )
     )
     assert response.status_code == 200, f'The response status code must be equal 200, but it is {response.status_code}'
