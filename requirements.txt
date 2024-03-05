@@ -3,3 +3,5 @@ pytest~=8.0.0
 structlog~=24.1.0
 curlify~=2.2.1
 pydantic~=2.6.1
+datamodel_code_generator~=0.25.4
+pyhamcrest~=2.1.0
