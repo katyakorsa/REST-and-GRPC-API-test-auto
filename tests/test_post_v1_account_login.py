@@ -1,9 +1,10 @@
 import time
 
-from dm_api_account.models.login_credentials_model import LoginCredentialsModel
-from dm_api_account.models.registration_model import RegistrationModel
+from dm_api_account.models.login_credentials_model import LoginCredentials
+from dm_api_account.models.registration_model import Registration
 from services.dm_api_account import DmApiAccount
 from services.mailhog import MailhogApi
+from utils.helpers import validate_account_response
 
 
 def test_post_v1_account_login():
@@ -13,9 +14,9 @@ def test_post_v1_account_login():
 
     # creating an account
     api.account.post_v1_account(
-        json=RegistrationModel(
-            login='berry_lemonade13',
-            email='berry_lemonade13@wolt.com',
+        json=Registration(
+            login='pear_rosemary5',
+            email='pear_rosemary5@wolt.com',
             password='stringstring'
         )
     )
@@ -29,10 +30,11 @@ def test_post_v1_account_login():
 
     # login via credentials
     response = api.login.post_v1_account_login(
-        json=LoginCredentialsModel(
-            login='berry_lemonade13',
+        json=LoginCredentials(
+            login='pear_rosemary5',
             password='stringstring',
             rememberMe=True
         )
     )
-    assert response.status_code == 200, f'The response status code must be equal 200, but it is {response.status_code}'
+
+    validate_account_response(response=response, login='pear_rosemary5')

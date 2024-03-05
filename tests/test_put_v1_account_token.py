@@ -2,7 +2,8 @@ import time
 
 from services.dm_api_account import DmApiAccount
 from services.mailhog import MailhogApi
-from dm_api_account.models.registration_model import RegistrationModel
+from utils.helpers import validate_account_response
+from dm_api_account.models.registration_model import Registration
 
 
 def test_put_v1_account_token():
@@ -12,9 +13,9 @@ def test_put_v1_account_token():
 
     # creating an account
     api.account.post_v1_account(
-        json=RegistrationModel(
-            login='berry_lemonade15',
-            email='berry_lemonade15@wolt.com',
+        json=Registration(
+            login='pear_rosemary13',
+            email='pear_rosemary13@wolt.com',
             password='stringstring'
         )
     )
@@ -26,4 +27,4 @@ def test_put_v1_account_token():
         token=token
     )
 
-    assert response.status_code == 200, f'The response status code must be equal 200, but it is {response.status_code}'
+    validate_account_response(response=response, login='pear_rosemary13')

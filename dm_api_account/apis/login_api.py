@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from requests import Response
-from dm_api_account.models.login_credentials_model import LoginCredentialsModel
-from dm_api_account.models.user_envelope_model import UserEnvelopeModel
+
+from utils.helpers import validate_request_json, validate_status_code
+from ..models import *
 from rest_client.rest_client import RestClient
 
 
@@ -12,23 +15,36 @@ class LoginApi:
         if headers:
             self.client.session.headers.update(headers)
 
-    def post_v1_account_login(self, json: LoginCredentialsModel, **kwargs) -> Response:
+    def post_v1_account_login(
+            self,
+            json: LoginCredentials,
+            status_code: int = 200,
+            **kwargs
+    ) -> Response | UserEnvelope:
         """
         Authenticate via credentials
+        :param status_code:
         :param json: change_credentials_model
         :return:
         """
 
         response = self.client.post(
             url=f"/v1/account/login",
-            json=json.model_dump(by_alias=True, exclude_none=True),
+            json=validate_request_json(json),
             **kwargs
         )
-        UserEnvelopeModel(**response.json())
+        validate_status_code(response, status_code)
+
+        if response.status_code == 200:
+            return UserEnvelope(**response.json())
 
         return response
 
-    def delete_v1_account_login(self, **kwargs) -> Response:
+    def delete_v1_account_login(
+            self,
+            status_code: int = 204,
+            **kwargs
+    ) -> Response:
         """
         Logout as current user
         :return:
@@ -38,10 +54,15 @@ class LoginApi:
             url=f"/v1/account/login",
             **kwargs
         )
+        validate_status_code(response, status_code)
 
         return response
 
-    def delete_v1_account_login_all(self, **kwargs) -> Response:
+    def delete_v1_account_login_all(
+            self,
+            status_code: int = 204,
+            **kwargs
+    ) -> Response:
         """
         Logout from every device
         :return:
@@ -51,5 +72,6 @@ class LoginApi:
             url=f"/v1/account/login/all",
             **kwargs
         )
+        validate_status_code(response, status_code)
 
         return response
