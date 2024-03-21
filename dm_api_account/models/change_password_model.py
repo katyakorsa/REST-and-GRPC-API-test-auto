@@ -13,7 +13,7 @@ class ChangePassword(BaseModel):
         None,
         description='User login'
     )
-    token: Optional[UUID] = Field(
+    token: Optional[UUID | StrictStr] = Field(
         None,
         description='Password reset token'
     )

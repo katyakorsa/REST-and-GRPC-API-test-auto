@@ -1,22 +1,30 @@
-import time
+import structlog
 
 from services.dm_api_account import DmApiAccount
-from tests import test_put_v1_account_token
-from dm_api_account.models.registration_model import Registration
+
+structlog.configure(
+    processors=[
+        structlog.processors.JSONRenderer(indent=4, sort_keys=True, ensure_ascii=False)
+    ]
+)
 
 
 def test_post_v1_account():
     api = DmApiAccount(host='http://5.63.153.31:5051')
 
-    # creating an account
-    response = api.account.post_v1_account(
-        json=Registration(
-            login='mailo_the_dog1',
-            email='mailo_the_dog1@wolt.com',
-            password='stringstring'
-        )
+    login = 'FlorenceWelch71'
+    email = 'FlorenceWelch71@gmail.com'
+    password = 'strong1password'
+
+    api.account.register_new_user(
+        login=login,
+        email=email,
+        password=password
     )
 
-    # activating an account
-    time.sleep(2)
-    test_put_v1_account_token.test_put_v1_account_token()
+    api.account.activate_registered_user()
+    api.login.login_user(
+        login=login,
+        password=password,
+        remember_me=True
+    )

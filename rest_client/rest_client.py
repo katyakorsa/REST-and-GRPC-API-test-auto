@@ -13,7 +13,7 @@ structlog.configure(
 
 
 class RestClient:
-    def __init__(self, host, headers=None):
+    def __init__(self, host: str, headers=None):
         self.host = host
         self.session = session()
 
@@ -36,6 +36,7 @@ class RestClient:
 
     def _send_request(self, method, url, **kwargs) -> Response:
         merged_url = self.host + url
+        print(merged_url)
         log = self.log.bind(event_id=str(uuid.uuid4()))
         log.msg(
             event='request',
