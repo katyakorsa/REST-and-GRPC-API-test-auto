@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from utils.helpers import validate_request_json, validate_status_code
+from utils.utils import validate_request_json, validate_status_code
 from requests import Response
 from ..models import *
 from rest_client.rest_client import RestClient
@@ -18,7 +18,7 @@ class AccountApi:
             self,
             status_code: int = 200,
             **kwargs
-            ) -> Response | UserDetailsEnvelope:
+    ) -> Response | UserDetailsEnvelope:
         """
         Get current user
         :return:
@@ -26,13 +26,12 @@ class AccountApi:
 
         response = self.client.get(
             url=f"/v1/account",
-
             **kwargs
         )
         validate_status_code(response, status_code)
 
-        if response.status_code == 200:
-            return UserDetailsEnvelope(**response.json())
+        # if response.status_code == 200:
+        #     return UserDetailsEnvelope(**response.json())
 
         return response
 
@@ -41,7 +40,7 @@ class AccountApi:
             json: Registration,
             status_code: int = 201,
             **kwargs
-            ) -> Response:
+    ) -> Response:
         """
         Register new user
         :param status_code:
@@ -62,9 +61,9 @@ class AccountApi:
     def post_v1_account_password(
             self,
             json: ResetPassword,
-            status_code: int = 201,
+            status_code: int = 200,
             **kwargs
-            ) -> Response | UserEnvelope:
+    ) -> Response | UserEnvelope:
         """
         Reset registered user password
         :param status_code:
@@ -89,7 +88,7 @@ class AccountApi:
             token: str,
             status_code: int = 200,
             **kwargs
-            ) -> Response | UserEnvelope:
+    ) -> Response | UserEnvelope:
         """
         Activate registered user
         :return:
@@ -111,7 +110,7 @@ class AccountApi:
             json: ChangePassword,
             status_code: int = 200,
             **kwargs
-            ) -> Response | UserEnvelope:
+    ) -> Response | UserEnvelope:
         """
         Change registered user password
         :param status_code:
@@ -136,7 +135,7 @@ class AccountApi:
             json: ChangeEmail,
             status_code: int = 200,
             **kwargs
-            ) -> Response | UserEnvelope:
+    ) -> Response | UserEnvelope:
         """
         Change registered user email
         :param status_code:

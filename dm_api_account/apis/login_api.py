@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from requests import Response
 
-from utils.helpers import validate_request_json, validate_status_code
+from utils.utils import validate_request_json, validate_status_code
 from ..models import *
 from rest_client.rest_client import RestClient
 
@@ -35,8 +35,8 @@ class LoginApi:
         )
         validate_status_code(response, status_code)
 
-        if response.status_code == 200:
-            return UserEnvelope(**response.json())
+        # if response.status_code == 200:
+        #     return UserEnvelope(**response.json())
 
         return response
 
