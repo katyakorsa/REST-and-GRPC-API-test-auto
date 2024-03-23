@@ -18,7 +18,7 @@ def validate_request_json(json: BaseModel):
 
 
 def validate_status_code(response: requests.Response, status_code: int):
-    assert response.status_code == status_code, f'Status code must be equal status_code, ' \
+    assert response.status_code == status_code, f'Status code must be equal {status_code}, ' \
                                                 f'but it is {response.status_code}'
 
 

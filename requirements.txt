@@ -5,3 +5,5 @@ curlify~=2.2.1
 pydantic~=2.6.1
 datamodel_code_generator~=0.25.4
 pyhamcrest~=2.1.0
+psycopg2-binary~=2.9.9
+records~=0.5.3
