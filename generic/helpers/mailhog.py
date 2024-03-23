@@ -4,6 +4,7 @@ import time
 from requests import Response
 from rest_client.rest_client import RestClient
 
+
 # reuse later
 # def retry(fn):
 #     def wrapper(*args, **kwargs):
@@ -35,6 +36,17 @@ class MailhogApi:
             params={
                 'limit': limit
             }
+        )
+
+        return response
+
+    def delete_api_v2_messages(self) -> Response:
+        """
+        Delete all messages
+        :return:
+        """
+        response = self.client.delete(
+            url=f"/api/v1/messages"
         )
 
         return response
@@ -86,3 +98,16 @@ class MailhogApi:
                 reset_token = user_data['ConfirmationLinkUri'].split('/')[-1]
 
                 return reset_token
+
+    def delete_message_by_token(self, token: str):
+        # дополнить позже
+        """
+        Delete a specific message by token
+        :param token:
+        :return:
+        """
+        response = self.client.delete(
+            url=f"/api/v1/messages/{token}=@mailhog.example"
+        )
+
+        return response
