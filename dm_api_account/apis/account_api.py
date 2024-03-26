@@ -44,7 +44,6 @@ class AccountApi:
         """
         Register new user
         :param status_code:
-
         :param json: registration_model
         :return:
         """

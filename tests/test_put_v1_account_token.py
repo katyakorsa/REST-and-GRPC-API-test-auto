@@ -1,7 +1,6 @@
 import structlog
-
+from generic.helpers.orm_db import OrmDatabase
 from services.dm_api_account import DmApiAccount
-from utils.utils import validate_account_response
 
 structlog.configure(
     processors=[
@@ -12,10 +11,15 @@ structlog.configure(
 
 def test_put_v1_account_token():
     api = DmApiAccount(host='http://5.63.153.31:5051')
+    db_path = OrmDatabase(user='postgres', password='admin', host='5.63.153.31', database='dm3.5')
 
-    login = 'FlorenceWelch78'
-    email = 'FlorenceWelch78@gmail.com'
-    password = 'strong1password'
+    login = 'FlorenceWelch'
+    email = 'FlorenceWelch@gmail.com'
+    password = 'strongpassword'
+
+    db_path.delete_user_by_login(login=login)
+    dataset = db_path.select_user_by_login(login=login)
+    assert len(dataset) == 0
 
     api.account.register_new_user(
         login=login,
@@ -23,7 +27,13 @@ def test_put_v1_account_token():
         password=password
     )
 
-    response = api.account.activate_registered_user()
+    dataset = db_path.select_user_by_login(login=login)
+    for row in dataset:
+        assert row.Login == login, f'The user {login} is not registered'
+        assert row.Activated is False, f'The user {login} has already been activated'
 
-    validate_account_response(response=response, login=login)
+    db_path.update_user_by_login(login=login)
 
+    dataset = db_path.select_user_by_login(login=login)
+    for row in dataset:
+        assert row.Activated is True, f'The user {login} is not activated'
