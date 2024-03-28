@@ -1,46 +1,55 @@
-import structlog
-
-from generic.helpers.orm_db import OrmDatabase
-from services.dm_api_account import DmApiAccount
-
-structlog.configure(
-    processors=[
-        structlog.processors.JSONRenderer(indent=4, sort_keys=True, ensure_ascii=False)
-    ]
-)
+import pytest
+from hamcrest import assert_that, has_entries
+from generic.helpers.checkers import asserts
+from utils.data_generators import email_generator, random_string, full_name_generator
 
 
-def test_post_v1_account_login():
-    api = DmApiAccount(host='http://5.63.153.31:5051')
-    db_path = OrmDatabase(user='postgres', password='admin', host='5.63.153.31', database='dm3.5')
+@pytest.mark.parametrize('login, email, password, status_code, check', [
+    (full_name_generator(), email_generator(), 'strong_password', 201, ''),
+    (full_name_generator(), email_generator(), random_string(1, 5), 400, {"Password": ["Short"]}),
+    ('а', email_generator(), 'strong_password', 400, {"Login": ["Short"]}),
+    ('а', 'florence_welch@', 'strong_password', 400, {"Email": ["Invalid"]}),
+    ('а', 'florence.gmail.com', 'strong_password', 400, {"Email": ["Invalid"]})
+])
+def test_post_v1_account_login(
+        dm_api,
+        dm_orm,
+        login,
+        email,
+        password,
+        status_code,
+        check
+):
+    dm_orm.delete_user_by_login(login=login)
+    dm_api.mailhog.delete_api_v2_messages()
 
-    login = 'Emma Marshall'
-    email = 'emma_marshall@gmail.com'
-    password = 'strong1password'
+    dataset = dm_orm.select_user_by_login(login=login)
+    for row in dataset:
+        asserts(row=row, login=login, activate_flag=False)
 
-    db_path.delete_user_by_login(login=login)
-    dataset = db_path.select_user_by_login(login=login)
-    assert len(dataset) == 0
-
-    api.account.register_new_user(
+    response = dm_api.account.register_new_user(
         login=login,
         email=email,
-        password=password
-    )
-
-    dataset = db_path.select_user_by_login(login=login)
-    for row in dataset:
-        assert row.Login == login, f'The user {login} is not registered'
-        assert row.Activated is False, f'The user {login} has already been activated'
-
-    db_path.update_user_by_login(login=login)
-
-    dataset = db_path.select_user_by_login(login=login)
-    for row in dataset:
-        assert row.Activated is True, f'The user {login} is not activated'
-
-    api.login.login_user(
-        login=login,
         password=password,
-        remember_me=True
+        status_code=status_code
     )
+
+    if status_code == 201:
+        dm_orm.update_user_by_login(login=login)
+        dataset = dm_orm.select_user_by_login(login=login)
+        for row in dataset:
+            asserts(row=row, login=login, activate_flag=True)
+
+        dm_api.login.login_user(
+            login=login,
+            password=password,
+            remember_me=True
+        )
+
+    else:
+        error_message = response.json()['errors']
+        assert_that(error_message, has_entries(check))
+
+    dataset = dm_orm.select_user_by_login(login=login)
+    for row in dataset:
+        asserts(row=row, login=login, activate_flag=True)

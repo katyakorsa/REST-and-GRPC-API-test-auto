@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Dict
 from pydantic import BaseModel, Extra, Field, StrictStr
 
 
@@ -34,7 +34,7 @@ class InfoBbText(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    value: Optional[StrictStr] = Field(None, description='Text')
+    value: Optional[StrictStr | None] = Field(None, description='Text')
     parse_mode: Optional[BbParseMode] = Field(None, alias='parseMode')
 
 
@@ -123,7 +123,7 @@ class UserDetails(BaseModel):
         alias='originalPictureUrl',
         description='URL of profile picture original'
     )
-    info: Optional[InfoBbText] = None
+    info: Optional[InfoBbText | StrictStr]
     settings: Optional[UserSettings] = None
 
 
@@ -131,7 +131,7 @@ class UserDetailsEnvelope(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    resource: Optional[UserDetails] = None
+    resource: Optional[UserDetails]
     metadata: Optional[Any] = Field(
         None,
         description='Additional metadata'

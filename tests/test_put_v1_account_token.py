@@ -1,39 +1,36 @@
-import structlog
-from generic.helpers.orm_db import OrmDatabase
-from services.dm_api_account import DmApiAccount
+import pytest
 
-structlog.configure(
-    processors=[
-        structlog.processors.JSONRenderer(indent=4, sort_keys=True, ensure_ascii=False)
-    ]
-)
+from generic.helpers.checkers import asserts
+from utils.data_generators import email_generator, full_name_generator
 
 
-def test_put_v1_account_token():
-    api = DmApiAccount(host='http://5.63.153.31:5051')
-    db_path = OrmDatabase(user='postgres', password='admin', host='5.63.153.31', database='dm3.5')
+@pytest.mark.parametrize('login, email, password, status_code', [
+    (full_name_generator(), email_generator(), 'strong_password', 201)
+])
+def test_put_v1_account_token(
+        dm_api,
+        dm_orm,
+        login,
+        email,
+        password,
+        status_code
+):
+    dm_orm.delete_user_by_login(login=login)
+    dm_api.mailhog.delete_api_v2_messages()
 
-    login = 'FlorenceWelch'
-    email = 'FlorenceWelch@gmail.com'
-    password = 'strongpassword'
-
-    db_path.delete_user_by_login(login=login)
-    dataset = db_path.select_user_by_login(login=login)
-    assert len(dataset) == 0
-
-    api.account.register_new_user(
+    dm_api.account.register_new_user(
         login=login,
         email=email,
-        password=password
+        password=password,
+        status_code=status_code
     )
 
-    dataset = db_path.select_user_by_login(login=login)
+    dataset = dm_orm.select_user_by_login(login=login)
     for row in dataset:
-        assert row.Login == login, f'The user {login} is not registered'
-        assert row.Activated is False, f'The user {login} has already been activated'
+        asserts(row=row, login=login, activate_flag=False)
 
-    db_path.update_user_by_login(login=login)
+    dm_orm.update_user_by_login(login=login)
 
-    dataset = db_path.select_user_by_login(login=login)
+    dataset = dm_orm.select_user_by_login(login=login)
     for row in dataset:
-        assert row.Activated is True, f'The user {login} is not activated'
+        asserts(row=row, login=login, activate_flag=True)

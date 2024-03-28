@@ -6,9 +6,9 @@ from generic.helpers.mailhog import MailhogApi
 
 
 class DmApiAccount:
-    def __init__(self, host, headers=None):
+    def __init__(self, host, mailhog=None, headers=None):
         self.account_api = AccountApi(host, headers)
         self.login_api = LoginApi(host, headers)
-        self.mailhog = MailhogApi()
+        self.mailhog = mailhog
         self.account = Account(self)
         self.login = Login(self)

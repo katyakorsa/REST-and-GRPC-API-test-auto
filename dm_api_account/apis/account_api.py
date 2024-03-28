@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from utils.utils import validate_request_json, validate_status_code
+from generic.helpers.checkers import validate_request_json, validate_status_code
 from requests import Response
 from ..models import *
 from rest_client.rest_client import RestClient
@@ -29,9 +29,8 @@ class AccountApi:
             **kwargs
         )
         validate_status_code(response, status_code)
-
-        # if response.status_code == 200:
-        #     return UserDetailsEnvelope(**response.json())
+        if response.status_code == 200:
+            return UserDetailsEnvelope(**response.json())
 
         return response
 

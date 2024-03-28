@@ -19,7 +19,6 @@ class TestClass:
         orm = OrmDatabase(user=user, password=password, host=host, database=database)
 
         dataset = orm.select_all_users()
-        print(dataset)
 
     def test_select_user_by_login(self):
         user = 'postgres'

@@ -9,3 +9,5 @@ psycopg2-binary~=2.9.9
 records~=0.5.3
 sqlalchemy~=1.4.46
 sqlacodegen~=2.3.0
+faker~=24.4.0
+mimesis~=15.1.0
