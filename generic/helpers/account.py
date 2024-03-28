@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dm_api_account.models import Registration, ChangeEmail, ChangePassword, ResetPassword, UserDetailsEnvelope
+from generic.helpers.mailhog import MailhogApi
 from requests import Response
 
 
@@ -17,20 +18,21 @@ class Account:
             self,
             login: str,
             email: str,
-            password: str
+            password: str,
+            status_code: int
     ):
         response = self.dm_api_account.account_api.post_v1_account(
             json=Registration(
                 login=login,
                 email=email,
                 password=password
-            )
+            ), status_code=status_code
         )
 
         return response
 
-    def activate_registered_user(self, ):
-        token = self.dm_api_account.mailhog.get_token_from_last_email()
+    def activate_registered_user(self, login: str):
+        token = self.dm_api_account.mailhog.get_token_by_login(login=login)
         response = self.dm_api_account.account_api.put_v1_account_token(token=token)
 
         return response
@@ -57,11 +59,13 @@ class Account:
     def change_user_password(
             self,
             login: str,
-            token: str,
             old_password: str,
             new_password: str,
             **kwargs
     ):
+        mailhog = MailhogApi()
+        token = mailhog.get_reset_token(login=login)
+
         response = self.dm_api_account.account_api.put_v1_account_password(
             json=ChangePassword(
                 login=login,

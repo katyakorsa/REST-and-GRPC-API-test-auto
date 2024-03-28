@@ -16,7 +16,7 @@ from rest_client.rest_client import RestClient
 #             else:
 #                 return response
 #
-#     return wrapper()
+#     return wrapper
 
 
 class MailhogApi:

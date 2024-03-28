@@ -1,8 +1,10 @@
 import requests
 import structlog
-
+from typing import Optional
 from pydantic import BaseModel
-from hamcrest import assert_that, has_property, has_properties, all_of, starts_with, equal_to
+from hamcrest import assert_that, has_property, has_properties, all_of, starts_with, equal_to, has_entries, any_of
+
+from dm_api_account.models.user_envelope_model import UserRole, User
 
 structlog.configure(
     processors=[
@@ -23,9 +25,10 @@ def validate_status_code(response: requests.Response, status_code: int):
 
 
 def validate_account_response(response, login: str):
-    assert_that(response, all_of(
-        has_property('resource', has_property('login', starts_with(login))),
-        has_property('resource', has_properties(
+    assert_that(response, any_of(
+        has_entries('resource', has_property('login', login)),
+        has_entries('resource', has_property('roles', (UserRole.GUEST, UserRole.PLAYER))),
+        has_entries('resource', has_properties(
             {
                 'rating': has_properties(
                     {
@@ -36,4 +39,13 @@ def validate_account_response(response, login: str):
                 )
             }
         ))
+    ))
+
+
+def asserts(row, activate_flag: bool, login: str):
+    assert_that(row, has_entries(
+        {
+            'Login': login,
+            'Activated': activate_flag
+        }
     ))

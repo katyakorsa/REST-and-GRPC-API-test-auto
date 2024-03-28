@@ -33,7 +33,7 @@ class OrmDatabase:
     def update_user_by_login(self, login: str):
         query = update(User).where(
             User.Login == login
-        ).values(Activated=True)
+        ).values(dict(Activated=True))
         dataset = self.orm_db.send_bulk_query(query=query)
 
         return dataset
