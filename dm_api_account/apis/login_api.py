@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import allure
 from requests import Response
 from ..models import *
-from rest_client.rest_client import RestClient
+from restclient.rest_client import RestClient
 from generic.helpers.checkers import validate_request_json, validate_status_code
 
 
@@ -26,12 +27,12 @@ class LoginApi:
         :param json: change_credentials_model
         :return:
         """
-
-        response = self.client.post(
-            url=f"/v1/account/login",
-            json=validate_request_json(json),
-            **kwargs
-        )
+        with allure.step("User authorization"):
+            response = self.client.post(
+                url=f"/v1/account/login",
+                json=validate_request_json(json),
+                **kwargs
+            )
         validate_status_code(response, status_code)
 
         if response.status_code == 200:
@@ -48,11 +49,11 @@ class LoginApi:
         Logout as current user
         :return:
         """
-
-        response = self.client.delete(
-            url=f"/v1/account/login",
-            **kwargs
-        )
+        with allure.step("User logout"):
+            response = self.client.delete(
+                url=f"/v1/account/login",
+                **kwargs
+            )
         validate_status_code(response, status_code)
 
         return response
@@ -66,11 +67,11 @@ class LoginApi:
         Logout from every device
         :return:
         """
-
-        response = self.client.delete(
-            url=f"/v1/account/login/all",
-            **kwargs
-        )
+        with allure.step("Logout from every device"):
+            response = self.client.delete(
+                url=f"/v1/account/login/all",
+                **kwargs
+            )
         validate_status_code(response, status_code)
 
         return response

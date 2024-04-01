@@ -1,44 +1,48 @@
+import allure
 import pytest
 
-from generic.helpers.checkers import asserts
 from utils.data_generators import email_generator, full_name_generator
 
 
-@pytest.mark.parametrize('login, email, password, status_code', [
-    (full_name_generator(), email_generator(), 'strong_password', 201),
-])
-def test_put_v1_account_email(
-        dm_api,
-        dm_orm,
-        login,
-        email,
-        password,
-        status_code
-):
-    dm_orm.delete_user_by_login(login=login)
-    dm_api.mailhog.delete_api_v2_messages()
+@allure.suite("Tests for checking PUT {host}v1/account/email")
+@allure.sub_suite("Positive checks")
+class TestPutV1AccountEmail:
+    @pytest.mark.parametrize('login, email, password, status_code', [
+        (full_name_generator(), email_generator(), 'strong_password', 201),
+    ])
+    @allure.title("Process of changing user email")
+    def test_put_v1_account_email(
+            self,
+            dm_api,
+            orm_db,
+            login,
+            email,
+            password,
+            status_code,
+            assertions
+    ):
+        orm_db.delete_user_by_login(login=login)
+        dm_api.mailhog.delete_api_v2_messages()
 
-    dm_api.account.register_new_user(
-        login=login,
-        email=email,
-        password=password,
-        status_code=status_code
-    )
+        dm_api.account.register_new_user(
+            login=login,
+            email=email,
+            password=password,
+            status_code=status_code
+        )
+        assertions.check_user_was_created(login=login)
 
-    dm_orm.update_user_by_login(login=login)
-    dataset = dm_orm.select_user_by_login(login=login)
-    for row in dataset:
-        asserts(row=row, login=login, activate_flag=True)
+        orm_db.update_user_by_login(login=login)
+        assertions.check_user_has_activated(login=login)
 
-    dm_api.login.login_user(
-        login=login,
-        password=password,
-        remember_me=True
-    )
+        dm_api.login.login_user(
+            login=login,
+            password=password,
+            remember_me=True
+        )
 
-    # добавить позже изменение логина через БД
-    dm_api.account.change_user_email(
-        login=login,
-        password=password,
-        email=email
-    )
+        dm_api.account.change_user_email(
+            login=login,
+            password=password,
+            email=email
+        )

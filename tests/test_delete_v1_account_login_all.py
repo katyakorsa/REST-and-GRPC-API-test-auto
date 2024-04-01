@@ -1,49 +1,50 @@
+import allure
 import pytest
 
-from generic.helpers.checkers import asserts
 from utils.data_generators import email_generator, full_name_generator
 
 
-@pytest.mark.parametrize('login, email, password, status_code', [
-    (full_name_generator(), email_generator(), 'strong_password', 201),
-])
-def test_delete_v1_account_login(
-        dm_api,
-        dm_orm,
-        login,
-        email,
-        password,
-        status_code
-):
-    dm_orm.delete_user_by_login(login=login)
-    dm_api.mailhog.delete_api_v2_messages()
+@allure.suite("Tests for checking DELETE {host}v1/account/login/all")
+@allure.sub_suite("Positive checks")
+class TestDeleteV1AccountLoginAll:
+    @pytest.mark.parametrize('login, email, password, status_code', [
+        (full_name_generator(), email_generator(), 'strong_password', 201),
+    ])
+    @allure.title("Verification user logout from every device")
+    def test_delete_v1_account_login_all(
+            self,
+            dm_api,
+            orm_db,
+            login,
+            email,
+            password,
+            status_code,
+            assertions
+    ):
+        orm_db.delete_user_by_login(login=login)
+        dm_api.mailhog.delete_api_v2_messages()
 
-    dm_api.account.register_new_user(
-        login=login,
-        email=email,
-        password=password,
-        status_code=status_code
-    )
+        dm_api.account.register_new_user(
+            login=login,
+            email=email,
+            password=password,
+            status_code=status_code
+        )
 
-    dataset = dm_orm.select_user_by_login(login=login)
-    for row in dataset:
-        asserts(row=row, login=login, activate_flag=False)
+        assertions.check_user_was_created(login=login)
 
-    dm_orm.update_user_by_login(login=login)
+        orm_db.update_user_by_login(login=login)
+        assertions.check_user_has_activated(login=login)
 
-    dataset = dm_orm.select_user_by_login(login=login)
-    for row in dataset:
-        asserts(row=row, login=login, activate_flag=True)
+        dm_api.login.login_user(
+            login=login,
+            password=password,
+            remember_me=True
+        )
 
-    dm_api.login.login_user(
-        login=login,
-        password=password,
-        remember_me=True
-    )
+        headers = dm_api.login.get_auth_token(
+            login=login,
+            password=password
+        )
 
-    headers = dm_api.login.get_auth_token(
-        login=login,
-        password=password
-    )
-
-    dm_api.login.logout_from_every_device(headers=headers)
+        dm_api.login.logout_from_every_device(headers=headers)

@@ -1,42 +1,47 @@
 from typing import List
+
+import allure
 from sqlalchemy import select, delete, update
 from orm_client.orm_client import OrmClient
 from models.orm_models.user_model import User
 
 
 class OrmDatabase:
-    def __init__(self, user, password, host, database):
-        self.orm_db = OrmClient(user, password, host, database)
+    def __init__(
+            self,
+            user,
+            password,
+            host,
+            database
+    ):
+        self.orm = OrmClient(user, password, host, database)
 
     def select_all_users(self):
-        query = select(User)
-        dataset = self.orm_db.send_query(query=query)
+        with allure.step('Get all users'):
+            query = select(User)
 
-        return dataset
+        return self.orm.send_query(query=query)
 
     def select_user_by_login(self, login: str) -> List[User]:
-        query = select(User).where(
-            User.Login == login
-        )
-        dataset = self.orm_db.send_query(query)
+        with allure.step('Get entity by login'):
+            query = select(User).where(
+                User.Login == login
+            )
 
-        return dataset
+        return self.orm.send_query(query=query)
 
     def delete_user_by_login(self, login: str):
-        query = delete(User).where(
-            User.Login == login
-        )
-        dataset = self.orm_db.send_bulk_query(query=query)
+        with allure.step('Delete particular user by login'):
+            query = delete(User).where(
+                User.Login == login
+            )
 
-        return dataset
+        return self.orm.send_bulk_query(query=query)
 
     def update_user_by_login(self, login: str):
-        query = update(User).where(
-            User.Login == login
-        ).values(dict(Activated=True))
-        dataset = self.orm_db.send_bulk_query(query=query)
+        with allure.step('Update user data by login'):
+            query = update(User).where(
+                User.Login == login
+            ).values(dict(Activated=True))
 
-        return dataset
-
-    def create_new_user(self):
-        pass
+        return self.orm.send_bulk_query(query=query)

@@ -1,10 +1,10 @@
+import allure
 import requests
 import structlog
-from typing import Optional
 from pydantic import BaseModel
-from hamcrest import assert_that, has_property, has_properties, all_of, starts_with, equal_to, has_entries, any_of
+from hamcrest import assert_that, has_property, has_properties, equal_to, has_entries, any_of
 
-from dm_api_account.models.user_envelope_model import UserRole, User
+from dm_api_account.models.user_envelope_model import UserRole
 
 structlog.configure(
     processors=[
@@ -20,8 +20,9 @@ def validate_request_json(json: BaseModel):
 
 
 def validate_status_code(response: requests.Response, status_code: int):
-    assert response.status_code == status_code, f'Status code must be equal {status_code}, ' \
-                                                f'but it is {response.status_code}'
+    with allure.step("Validation and status code verification"):
+        assert response.status_code == status_code, f'Status code must be equal {status_code}, ' \
+                                                    f'but it is {response.status_code}'
 
 
 def validate_account_response(response, login: str):
