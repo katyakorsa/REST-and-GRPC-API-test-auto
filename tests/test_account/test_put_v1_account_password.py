@@ -1,7 +1,7 @@
 import allure
 import pytest
 
-from utils.data_generators import email_generator, full_name_generator
+from generic.helpers.data_generators import email_generator, full_name_generator
 
 
 @allure.suite("Tests for checking PUT {host}v1/account/password")

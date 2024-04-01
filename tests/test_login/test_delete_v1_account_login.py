@@ -1,18 +1,18 @@
 import allure
 import pytest
 
-from utils.data_generators import email_generator, full_name_generator
+from generic.helpers.data_generators import email_generator, full_name_generator
 
 
-@allure.suite("Tests for checking POST {host}v1/account/password")
+@allure.suite("Tests for checking DELETE {host}v1/account/login")
 @allure.sub_suite("Positive checks")
-class TestPostV1AccountPassword:
+class TestDeleteV1AccountLogin:
 
     @pytest.mark.parametrize('login, email, password, status_code', [
         (full_name_generator(), email_generator(), 'strong_password', 201),
     ])
-    @allure.title("Reset user password")
-    def test_post_v1_account_password(
+    @allure.title("Verification user logout")
+    def test_delete_v1_account_login(
             self,
             dm_api,
             orm_db,
@@ -43,7 +43,9 @@ class TestPostV1AccountPassword:
             remember_me=True
         )
 
-        dm_api.account.reset_user_password(
+        headers = dm_api.login.get_auth_token(
             login=login,
-            email=email
+            password=password
         )
+
+        dm_api.login.logout_user(headers=headers)

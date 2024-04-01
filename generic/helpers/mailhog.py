@@ -3,7 +3,7 @@ import time
 
 import allure
 from requests import Response
-from restclient.rest_client import RestClient
+from common_libs.restclient.rest_client import RestClient
 
 
 # reuse later
