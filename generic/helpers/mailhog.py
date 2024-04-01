@@ -1,8 +1,9 @@
 import json
 import time
 
+import allure
 from requests import Response
-from rest_client.rest_client import RestClient
+from restclient.rest_client import RestClient
 
 
 # reuse later
@@ -30,13 +31,13 @@ class MailhogApi:
         Get messages with a set limit
         :return:
         """
-
-        response = self.client.get(
-            url=f"/api/v2/messages",
-            params={
-                'limit': limit
-            }
-        )
+        with allure.step("Get a certain amount of messages"):
+            response = self.client.get(
+                url=f"/api/v2/messages",
+                params={
+                    'limit': limit
+                }
+            )
 
         return response
 
@@ -45,9 +46,10 @@ class MailhogApi:
         Delete all messages
         :return:
         """
-        response = self.client.delete(
-            url=f"/api/v1/messages"
-        )
+        with allure.step("Delete all messages"):
+            response = self.client.delete(
+                url=f"/api/v1/messages"
+            )
 
         return response
 
@@ -106,8 +108,9 @@ class MailhogApi:
         :param token:
         :return:
         """
-        response = self.client.delete(
-            url=f"/api/v1/messages/{token}=@mailhog.example"
-        )
+        with allure.step("Delete a particular message by token"):
+            response = self.client.delete(
+                url=f"/api/v1/messages/{token}=@mailhog.example"
+            )
 
         return response

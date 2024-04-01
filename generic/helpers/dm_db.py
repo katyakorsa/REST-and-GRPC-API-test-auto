@@ -1,35 +1,43 @@
+import allure
+
 from db_client.db_client import DbClient
 
 
 class DmDatabase:
-    def __init__(self, user, password, host, database):
+    def __init__(
+            self,
+            user,
+            password,
+            host,
+            database
+    ):
         self.db = DbClient(user, password, host, database)
 
     def get_all_users(self):
         query = 'select * from "public"."Users"'
-        dataset = self.db.send_query(query=query)
+        with allure.step('Get all users'):
+            dataset = self.db.send_query(query=query)
 
         return dataset
 
-    def create_new_user(self):
-        pass
-
-    def get_user_by_login(self, login: str):
+    def select_user_by_login(self, login: str):
         query = f'''
         select * from "public"."Users" 
         where "Login" = '{login}'
         '''
-        dataset = self.db.send_query(query=query)
+        with allure.step('Get user by login'):
+            dataset = self.db.send_query(query=query)
 
         return dataset
 
-    def activate_user_by_db(self, login):
+    def update_user_by_login(self, login):
         query = f'''
         update "public"."Users"
         set "Activated" = true
         where "Login" = '{login}'
         '''
-        dataset = self.db.send_bulk_query(query=query)
+        with allure.step('Update user data by login'):
+            dataset = self.db.send_bulk_query(query=query)
 
         return dataset
 
@@ -38,6 +46,7 @@ class DmDatabase:
         delete from "public"."Users"
         where "Login" = '{login}'
         '''
-        dataset = self.db.send_bulk_query(query=query)
+        with allure.step('Delete user by login'):
+            dataset = self.db.send_bulk_query(query=query)
 
         return dataset

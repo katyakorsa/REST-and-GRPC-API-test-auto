@@ -5,6 +5,7 @@ from collections import namedtuple
 from pathlib import Path
 from vyper import v
 
+from generic.assertions.post_v1_account import AssertionsPostV1Account
 from generic.helpers.dm_db import DmDatabase
 from generic.helpers.orm_db import OrmDatabase
 from generic.helpers.mailhog import MailhogApi
@@ -43,25 +44,32 @@ def dm_api(mailhog):
 
 
 @pytest.fixture
-def dm_db():
-    db = DmDatabase(
-        user=v.get('database.dm3_5.user'),
-        password=v.get('database.dm3_5.password'),
-        host=v.get('database.dm3_5.host'),
-        database=v.get('database.dm3_5.database')
-    )
-    return db
-
-
-@pytest.fixture
-def dm_orm():
+def orm_db():
     db = OrmDatabase(
         user=v.get('database.dm3_5.user'),
         password=v.get('database.dm3_5.password'),
         host=v.get('database.dm3_5.host'),
         database=v.get('database.dm3_5.database')
     )
-    return db
+    yield db
+    db.orm.close_connection()
+
+
+connect = None
+
+
+@pytest.fixture
+def dm_db():
+    global connect
+    if connect is None:
+        connect = DmDatabase(
+            user=v.get('database.dm3_5.user'),
+            password=v.get('database.dm3_5.password'),
+            host=v.get('database.dm3_5.host'),
+            database=v.get('database.dm3_5.database')
+        )
+    yield connect
+    # connect.db.db.close()
 
 
 @pytest.fixture(autouse=True)
@@ -97,7 +105,12 @@ def prepare_user(dm_api, dm_db):
         password='strong!password'
     )
     dm_db.delete_user_by_login(login=User.login)
-    dataset = dm_db.get_user_by_login(login=User.login)
+    dataset = dm_db.select_user_by_login(login=User.login)
     assert len(dataset) == 0
 
     return User
+
+
+@pytest.fixture
+def assertions(dm_db):
+    return AssertionsPostV1Account(dm_db)

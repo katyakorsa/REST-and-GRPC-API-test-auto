@@ -1,7 +1,10 @@
+import json
+
 import requests.exceptions
 import structlog
 import curlify
 import uuid
+import allure
 
 from requests import session, Response
 
@@ -12,25 +15,60 @@ structlog.configure(
 )
 
 
+def allure_attach(fn):
+    def wrapper(*args, **kwargs):
+        body = kwargs.get('json')
+        if body:
+            allure.attach(
+                json.dumps(kwargs.get('json'), indent=2),
+                attachment_type=allure.attachment_type.JSON,
+                name='request'
+            )
+        response = fn(*args, **kwargs)
+        try:
+            response_json = response.json()
+        except requests.exceptions.JSONDecodeError:
+            response_text = response.text
+            status_code = f'status_code: {response.status_code}'
+            allure.attach(
+                response_text if len(response_text) > 0 else status_code,
+                attachment_type=allure.attachment_type.TEXT,
+                name='response'
+            )
+        else:
+            allure.attach(
+                json.dumps(response_json, indent=2),
+                attachment_type=allure.attachment_type.JSON,
+                name='response'
+            )
+        return response
+
+    return wrapper
+
+
 class RestClient:
+
     def __init__(self, host: str, headers=None):
         self.host = host
         self.session = session()
-
         if headers:
             self.session.headers.update(headers)
 
         self.log = structlog.get_logger(self.__class__.__name__).bind(service='apis')
 
+    @allure_attach
     def post(self, url: str, **kwargs) -> Response:
         return self._send_request('POST', url, **kwargs)
 
+    @allure_attach
     def put(self, url: str, **kwargs) -> Response:
         return self._send_request('PUT', url, **kwargs)
 
+    @allure_attach
     def get(self, url: str, **kwargs) -> Response:
         return self._send_request('GET', url, **kwargs)
 
+    @allure_attach
     def delete(self, url: str, **kwargs) -> Response:
         return self._send_request('DELETE', url, **kwargs)
 
@@ -52,6 +90,11 @@ class RestClient:
             **kwargs
         )
         curl = curlify.to_curl(response.request)
+        allure.attach(
+            curl,
+            attachment_type=allure.attachment_type.TEXT,
+            name='curl'
+        )
         log.msg(
             event='response',
             status_code=response.status_code,
