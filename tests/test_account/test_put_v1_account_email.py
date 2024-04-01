@@ -1,17 +1,17 @@
 import allure
 import pytest
 
-from utils.data_generators import email_generator, full_name_generator
+from generic.helpers.data_generators import email_generator, full_name_generator
 
 
-@allure.suite("Tests for checking GET {host}v1/account")
+@allure.suite("Tests for checking PUT {host}v1/account/email")
 @allure.sub_suite("Positive checks")
-class TestGetV1Account:
+class TestPutV1AccountEmail:
     @pytest.mark.parametrize('login, email, password, status_code', [
         (full_name_generator(), email_generator(), 'strong_password', 201),
     ])
-    @allure.title("Get all information about user")
-    def test_get_v1_account(
+    @allure.title("Process of changing user email")
+    def test_put_v1_account_email(
             self,
             dm_api,
             orm_db,
@@ -41,5 +41,8 @@ class TestGetV1Account:
             remember_me=True
         )
 
-        token = dm_api.login.get_auth_token(login=login, password=password)
-        dm_api.account.get_current_user_info(headers=token)
+        dm_api.account.change_user_email(
+            login=login,
+            password=password,
+            email=email
+        )

@@ -5,7 +5,7 @@ import allure
 from generic.helpers.checkers import validate_request_json, validate_status_code
 from requests import Response
 from ..models import *
-from restclient.rest_client import RestClient
+from common_libs.restclient.rest_client import RestClient
 
 
 class AccountApi:

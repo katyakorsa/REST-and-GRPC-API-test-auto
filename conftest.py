@@ -5,6 +5,7 @@ from collections import namedtuple
 from pathlib import Path
 from vyper import v
 
+from data.post_v1_account import PostV1AccountData as user_data
 from generic.assertions.post_v1_account import AssertionsPostV1Account
 from generic.helpers.dm_db import DmDatabase
 from generic.helpers.orm_db import OrmDatabase
@@ -100,9 +101,9 @@ def prepare_user(dm_api, dm_db):
         'login, email, password'
     )
     User = user(
-        login='Olivia Rose',
-        email='OliviaRose@gmail.com',
-        password='strong!password'
+        login=user_data.login,
+        email=user_data.email,
+        password=user_data.password
     )
     dm_db.delete_user_by_login(login=User.login)
     dataset = dm_db.select_user_by_login(login=User.login)

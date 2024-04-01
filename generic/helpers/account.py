@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from dm_api_account.models import Registration, ChangeEmail, ChangePassword, ResetPassword, UserDetailsEnvelope
+from apis.dm_api_account.models import *
 from generic.helpers.mailhog import MailhogApi
 from requests import Response
 
+try:
+    from services.dm_api_account import DmApiAccount
+except ImportError:
+    pass
+
 
 class Account:
-    def __init__(self, dm_api_account):
+    def __init__(self, dm_api_account: DmApiAccount):
         from services.dm_api_account import DmApiAccount
         self.dm_api_account: DmApiAccount = dm_api_account
         # self.dm_api_account = dm_api_account

@@ -3,7 +3,7 @@ from __future__ import annotations
 import allure
 from requests import Response
 from ..models import *
-from restclient.rest_client import RestClient
+from common_libs.restclient.rest_client import RestClient
 from generic.helpers.checkers import validate_request_json, validate_status_code
 
 
