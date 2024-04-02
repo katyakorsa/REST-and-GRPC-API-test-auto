@@ -1,3 +1,6 @@
+import asyncio
+
+import grpc
 import pytest
 import structlog
 
@@ -5,12 +8,16 @@ from collections import namedtuple
 from pathlib import Path
 from vyper import v
 
+from apis.dm_api_account_grpc_async import AccountServiceStub
 from data.post_v1_account import PostV1AccountData as user_data
 from generic.assertions.post_v1_account import AssertionsPostV1Account
+from generic.helpers.acount_grpc import AccountGrpc
+from generic.helpers.acount_grpc_async import AccountGrpcAsync
 from generic.helpers.dm_db import DmDatabase
 from generic.helpers.orm_db import OrmDatabase
 from generic.helpers.mailhog import MailhogApi
 from services.dm_api_account import DmApiAccount
+from grpclib.client import Channel
 
 structlog.configure(
     processors=[
@@ -92,6 +99,29 @@ def pytest_addoption(parser):
     )
     for option in options:
         parser.addoption(f'--{option}', action='store', default=None)
+
+
+@pytest.fixture(scope='session')
+def grpc_account():
+    client = AccountGrpc(target='5.63.153.31:5055')
+    yield client
+    client.close()
+
+
+@pytest.fixture(scope='session')
+def event_loop_1():
+    loop = asyncio.get_event_loop()
+    loop.close()
+
+
+@pytest.fixture
+def grpc_account_async():
+    # channel = Channel()
+    client = AccountGrpcAsync(host='5.63.153.31', port=5055)
+    print(client)
+    yield client
+    client.close()
+
 
 
 @pytest.fixture
