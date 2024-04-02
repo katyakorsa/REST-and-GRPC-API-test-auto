@@ -27,8 +27,7 @@ class TestPutV1AccountEmail:
         dm_api.account.register_new_user(
             login=login,
             email=email,
-            password=password,
-            status_code=status_code
+            password=password
         )
         assertions.check_user_was_created(login=login)
 

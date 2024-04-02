@@ -2,6 +2,8 @@ import allure
 import pytest
 
 from hamcrest import assert_that, has_entries
+
+from generic.assertions.response_checker import check_status_code_http
 from generic.helpers.data_generators import email_generator, random_string, full_name_generator
 
 
@@ -31,25 +33,19 @@ class TestPostV1AccountLogin:
         orm_db.delete_user_by_login(login=login)
         dm_api.mailhog.delete_api_v2_messages()
 
-        response = dm_api.account.register_new_user(
-            login=login,
-            email=email,
-            password=password,
-            status_code=status_code
-        )
-
-        assertions.check_user_was_created(login=login)
+        with check_status_code_http(expected_status_code=status_code, expected_result=check):
+            dm_api.account.register_new_user(
+                login=login,
+                email=email,
+                password=password
+            )
 
         if status_code == 201:
+            assertions.check_user_was_created(login=login)
             orm_db.update_user_by_login(login=login)
             assertions.check_user_has_activated(login=login)
-
             dm_api.login.login_user(
                 login=login,
                 password=password,
                 remember_me=True
             )
-
-        else:
-            error_message = response.json()['errors']
-            assert_that(error_message, has_entries(check))

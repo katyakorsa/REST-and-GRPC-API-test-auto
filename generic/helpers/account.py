@@ -25,28 +25,27 @@ class Account:
             self,
             login: str,
             email: str,
-            password: str,
-            status_code: int
+            password: str
     ) -> Response:
         with allure.step("Register new user"):
-            response = self.dm_api_account.account_api.post_v1_account(
-                json=Registration(
+            response = self.dm_api_account.account_api.register(
+                registration=Registration(
                     login=login,
                     email=email,
                     password=password
-                ), status_code=status_code
+                )
             )
 
         return response
 
     def activate_registered_user(self, login: str):
         token = self.dm_api_account.mailhog.get_token_by_login(login=login)
-        response = self.dm_api_account.account_api.put_v1_account_token(token=token)
+        response = self.dm_api_account.account_api.activate(token=token)
 
         return response
 
     def get_current_user_info(self, **kwargs) -> UserDetailsEnvelope | Response:
-        response = self.dm_api_account.account_api.get_v1_account(**kwargs)
+        response = self.dm_api_account.account_api.get_currentt(**kwargs)
 
         return response
 
@@ -56,8 +55,8 @@ class Account:
             email: str
     ) -> Response:
         with allure.step("Reset user password"):
-            response = self.dm_api_account.account_api.post_v1_account_password(
-                json=ResetPassword(
+            response = self.dm_api_account.account_api.reset_password(
+                reset_password=ResetPassword(
                     login=login,
                     email=email
                 )
@@ -76,8 +75,8 @@ class Account:
         token = mailhog.get_reset_token(login=login)
 
         with allure.step("Change user password"):
-            response = self.dm_api_account.account_api.put_v1_account_password(
-                json=ChangePassword(
+            response = self.dm_api_account.account_api.change_password(
+                change_password=ChangePassword(
                     login=login,
                     token=token,
                     oldPassword=old_password,
@@ -94,8 +93,8 @@ class Account:
             email: str
     ) -> Response:
         with allure.step("Change user email"):
-            response = self.dm_api_account.account_api.put_v1_account_email(
-                json=ChangeEmail(
+            response = self.dm_api_account.account_api.change_email(
+                change_email=ChangeEmail(
                     login=login,
                     password=password,
                     email=email

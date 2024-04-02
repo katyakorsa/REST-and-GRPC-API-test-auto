@@ -19,11 +19,11 @@ class Login:
             remember_me: bool
     ) -> Response:
         with allure.step("User login"):
-            response = self.dm_api_account.login_api.post_v1_account_login(
-                json=LoginCredentials(
+            response = self.dm_api_account.login_api.v1_account_login_post(
+                login_credentials=LoginCredentials(
                     login=login,
                     password=password,
-                    rememberMe=remember_me
+                    remember_me=remember_me
                 )
             )
 
@@ -42,8 +42,8 @@ class Login:
 
     def logout_user(self, **kwargs):
         with allure.step("User logout"):
-            return self.dm_api_account.login_api.delete_v1_account_login(**kwargs)
+            return self.dm_api_account.login_api.v1_account_login_delete(**kwargs)
 
     def logout_from_every_device(self, **kwargs):
         with allure.step("Logout from every device"):
-            return self.dm_api_account.login_api.delete_v1_account_login_all(**kwargs)
+            return self.dm_api_account.login_api.v1_account_login_all_delete(**kwargs)
