@@ -1,4 +1,7 @@
-from apis.dm_api_account.models import LoginCredentials
+import allure
+from requests import Response
+
+from dm_api_account.models import LoginCredentials
 
 
 class Login:
@@ -14,14 +17,15 @@ class Login:
             login: str,
             password: str,
             remember_me: bool
-    ):
-        response = self.dm_api_account.login_api.post_v1_account_login(
-            json=LoginCredentials(
-                login=login,
-                password=password,
-                rememberMe=remember_me
+    ) -> Response:
+        with allure.step("User login"):
+            response = self.dm_api_account.login_api.post_v1_account_login(
+                json=LoginCredentials(
+                    login=login,
+                    password=password,
+                    rememberMe=remember_me
+                )
             )
-        )
 
         return response
 
@@ -31,17 +35,15 @@ class Login:
             password: str,
             remember_me: bool = True
     ):
-        response = self.login_user(login=login, password=password, remember_me=remember_me)
-        token = {'X-Dm-Auth-Token': response.headers['X-Dm-Auth-Token']}
+        with allure.step("Get auth token"):
+            response = self.login_user(login=login, password=password, remember_me=remember_me)
 
-        return token
+        return {'X-Dm-Auth-Token': response.headers['X-Dm-Auth-Token']}
 
     def logout_user(self, **kwargs):
-        response = self.dm_api_account.login_api.delete_v1_account_login(**kwargs)
-
-        return response
+        with allure.step("User logout"):
+            return self.dm_api_account.login_api.delete_v1_account_login(**kwargs)
 
     def logout_from_every_device(self, **kwargs):
-        response = self.dm_api_account.login_api.delete_v1_account_login_all(**kwargs)
-
-        return response
+        with allure.step("Logout from every device"):
+            return self.dm_api_account.login_api.delete_v1_account_login_all(**kwargs)

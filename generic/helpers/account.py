@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from apis.dm_api_account.models import *
+import allure
+
+from dm_api_account.models import *
 from generic.helpers.mailhog import MailhogApi
 from requests import Response
 
@@ -25,14 +27,15 @@ class Account:
             email: str,
             password: str,
             status_code: int
-    ):
-        response = self.dm_api_account.account_api.post_v1_account(
-            json=Registration(
-                login=login,
-                email=email,
-                password=password
-            ), status_code=status_code
-        )
+    ) -> Response:
+        with allure.step("Register new user"):
+            response = self.dm_api_account.account_api.post_v1_account(
+                json=Registration(
+                    login=login,
+                    email=email,
+                    password=password
+                ), status_code=status_code
+            )
 
         return response
 
@@ -51,13 +54,14 @@ class Account:
             self,
             login: str,
             email: str
-    ):
-        response = self.dm_api_account.account_api.post_v1_account_password(
-            json=ResetPassword(
-                login=login,
-                email=email
+    ) -> Response:
+        with allure.step("Reset user password"):
+            response = self.dm_api_account.account_api.post_v1_account_password(
+                json=ResetPassword(
+                    login=login,
+                    email=email
+                )
             )
-        )
 
         return response
 
@@ -67,18 +71,19 @@ class Account:
             old_password: str,
             new_password: str,
             **kwargs
-    ):
+    ) -> Response:
         mailhog = MailhogApi()
         token = mailhog.get_reset_token(login=login)
 
-        response = self.dm_api_account.account_api.put_v1_account_password(
-            json=ChangePassword(
-                login=login,
-                token=token,
-                oldPassword=old_password,
-                newPassword=new_password
-            ), **kwargs
-        )
+        with allure.step("Change user password"):
+            response = self.dm_api_account.account_api.put_v1_account_password(
+                json=ChangePassword(
+                    login=login,
+                    token=token,
+                    oldPassword=old_password,
+                    newPassword=new_password
+                ), **kwargs
+            )
 
         return response
 
@@ -87,13 +92,14 @@ class Account:
             login: str,
             password: str,
             email: str
-    ):
-        response = self.dm_api_account.account_api.put_v1_account_email(
-            json=ChangeEmail(
-                login=login,
-                password=password,
-                email=email
+    ) -> Response:
+        with allure.step("Change user email"):
+            response = self.dm_api_account.account_api.put_v1_account_email(
+                json=ChangeEmail(
+                    login=login,
+                    password=password,
+                    email=email
+                )
             )
-        )
 
         return response
